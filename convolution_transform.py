@@ -135,21 +135,12 @@ image=np.array([
 
 matrix=np.array([
     [1,0],
-    [2,1],
+    [1,1],
     ])
 
 transform={
     "matrix":matrix,
     "center":[0,0]
 }
-
-
-test = Convolution_Transform(image=image,transform=transform,padding="constant",constant_value=0.25)
-# slice1=test.slicer([1,1])
-# print(slice1)
-# print(test.convolver(slice1))
-
-test.apply()              
-print(test.convolved_matrix)
 
 
