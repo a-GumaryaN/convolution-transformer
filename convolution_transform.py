@@ -143,4 +143,7 @@ transform={
     "center":[0,0]
 }
 
+test=Convolution_Transform(image=image,transform=transform)
 
+test.apply()
+print(test.convolved_matrix)
