@@ -15,6 +15,9 @@ class Convolution_Transform:
         
         if("kernel_center" in keyword):
             self.kernel_center=keyword['kernel_center']
+        else :
+            i=j=int(self.kernel.shape[0]/2)
+            self.kernel_center=[i,j]
             
         if("padding" in keyword):
             self.border_calculation=keyword['padding']
@@ -95,8 +98,6 @@ class Convolution_Transform:
         return result
     
     def apply(self):
-        image_width=self.image.shape[0]
-        image_height=self.image.shape[1]
         image_width=self.image.shape[0]
         image_height=self.image.shape[1]
 
