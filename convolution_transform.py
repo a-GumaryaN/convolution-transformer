@@ -7,11 +7,15 @@ class Convolution_Transform:
     convolved_matrix=None
     slice_x_addition=0
     slice_y_addition=0
+    kernel_center=[0,0]
 
     def __init__(self,**keyword):
         self.image=keyword["image"]
-        self.transform=keyword["transform"]
+        self.kernel=keyword["kernel"]
         
+        if("kernel_center" in keyword):
+            self.kernel_center=keyword['kernel_center']
+            
         if("padding" in keyword):
             self.border_calculation=keyword['padding']
             
@@ -20,23 +24,23 @@ class Convolution_Transform:
 
 
     def __str__(self) -> str:
-        return("convolutional transformer object")
+        return("convolutional transform object")
     
     def constant_padding(self):
         image_width=self.image.shape[0]
         image_height=self.image.shape[1]
 
-        transform_width=self.transform["matrix"].shape[0]
-        transform_height=self.transform["matrix"].shape[1]
+        kernel_width=self.kernel.shape[0]
+        kernel_height=self.kernel.shape[1]
 
-        new_image=np.full((image_width+(transform_width*2),image_height+(transform_height*2)),self.constant_padding_value)
+        new_image=np.full((image_width+(kernel_width*2),image_height+(kernel_height*2)),self.constant_padding_value)
 
 
         for i in range(0,image_width):
 
             for j in range(0,image_height):
 
-                new_image[i+transform_width,j+transform_height]=self.image[i,j]
+                new_image[i+kernel_width,j+kernel_height]=self.image[i,j]
 
         self.image=new_image
     
@@ -51,25 +55,24 @@ class Convolution_Transform:
             self.ignore_padding()
 
         #---add additional value for next process
-        self.slice_x_addition=self.transform["matrix"].shape[0]
-        self.slice_y_addition=self.transform["matrix"].shape[1]
+        self.slice_x_addition=self.kernel.shape[0]
+        self.slice_y_addition=self.kernel.shape[1]
 
     
-    
     def slicer(self,target_pixel):
-        n=self.transform["matrix"].shape[0]
-        transform_i=self.transform["center"][0]
-        transform_j=self.transform["center"][1]
+        n=self.kernel.shape[0]
+        kernel_i=self.kernel_center[0]
+        kernel_j=self.kernel_center[1]
         slice=np.zeros((n,n))
 
         image_i=target_pixel[0]+self.slice_x_addition
         image_j=target_pixel[1]+self.slice_y_addition
         
         #---reset dimension of image center and transformer center---
-        image_i=image_i-transform_i
-        image_j=image_j-transform_j
-        transform_i=0
-        transform_j=0
+        image_i=image_i-kernel_i
+        image_j=image_j-kernel_j
+        kernel_i=0
+        kernel_j=0
 
         slice_i=0
         for i in range(image_i,image_i+n):
@@ -87,7 +90,7 @@ class Convolution_Transform:
         result=0
         for i in range(0,sliced_image.shape[0]):
             for j in range(0,sliced_image.shape[1]):
-                convolved=sliced_image[i,j]*self.transform["matrix"][i,j]
+                convolved=sliced_image[i,j]*self.kernel[i,j]
                 result=result+convolved
         return result
     
@@ -97,7 +100,7 @@ class Convolution_Transform:
         image_width=self.image.shape[0]
         image_height=self.image.shape[1]
 
-        self.transform["matrix"]=np.flip(self.transform["matrix"])
+        self.kernel=np.flip(self.kernel)
 
         self.convolved_matrix=np.zeros((image_width,image_height))
 
@@ -105,45 +108,10 @@ class Convolution_Transform:
 
         for image_i in range(0,image_width):
             for image_j in range(0,image_height):
-                sliced_image=self.slicer([image_i,image_j])
+                sliced_image=self.slicer([image_i+1,image_j+1])
                 convolved=self.convolver(sliced_image)
-                print(convolved)
+                if(convolved > 255):
+                    convolved=255
+                if(convolved < 0):
+                    convolved=0
                 self.convolved_matrix[image_i,image_j]=convolved
-
-
-        
-
-
-# image=np.array([
-#     [1,2,3,4],
-#     [5,6,7,8],
-#     [9,10,11,12,],
-#     [13,14,15,16],
-# ])
-
-image=np.array([
-    [1,2,3],
-    [5,6,7],
-    [9,10,11],
-])
-
-# matrix=np.array([
-#     [0, 0, 0],
-#     [0, 1, 0],
-#     [0, 0, 0],
-#     ])
-
-matrix=np.array([
-    [1,0],
-    [1,1],
-    ])
-
-transform={
-    "matrix":matrix,
-    "center":[0,0]
-}
-
-test=Convolution_Transform(image=image,transform=transform)
-
-test.apply()
-print(test.convolved_matrix)
