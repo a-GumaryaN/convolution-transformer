@@ -8,6 +8,7 @@ class Convolution_Transform:
     slice_x_addition=0
     slice_y_addition=0
     kernel_center=[0,0]
+    parameter=1
 
     def __init__(self,**keyword):
         self.image=keyword["image"]
@@ -24,6 +25,9 @@ class Convolution_Transform:
             
         if("constant_value" in keyword):
             self.constant_padding_value=keyword['constant_value']
+            
+        if("parameter" in keyword):
+            self.parameter=keyword['parameter']
 
 
     def __str__(self) -> str:
@@ -111,6 +115,7 @@ class Convolution_Transform:
             for image_j in range(0,image_height):
                 sliced_image=self.slicer([image_i+1,image_j+1])
                 convolved=self.convolver(sliced_image)
+                convolved=convolved*self.parameter
                 if(convolved > 255):
                     convolved=255
                 if(convolved < 0):
